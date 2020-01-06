@@ -19,10 +19,18 @@ def Directory_Exists(uri):
 #-------------------------------------------------------------------------------	
 	
 	
-def GetFileType(string, num):
+def GetFileType(string):
     index = string.rfind('.')
 
     return string[index:]
+
+
+def GetHrefValue(string):
+    indexStart = string.find('href="')+8
+    hrefStartString = string[indexStart:]
+    indexEnd = hrefStartString.find('"')
+
+    return string[indexStart:indexStart+indexEnd]
 
 
 def DownloadThreadAttachments(album, SaveDirectory):
@@ -35,25 +43,27 @@ def DownloadThreadAttachments(album, SaveDirectory):
     for i in a:
         
         s = str(i)
-        num1 = s.find('href="')+8
-        href = s[num1:]
-        num2 = href.find('"')
+        #num1 = s.find('href="')+8
+        #href = s[num1:]
+        #num2 = href.find('"')
+
+        hrefValue = GetHrefValue(s) # Get image link to request download
 
         start_time = time.time()
         
         try:
             if (Directory_Exists(SaveDirectory)): # Checks if save directory exists.
-                print(str(filename) + GetFileType(s[num1:num1+num2], num2), end = '')
-                urllib.request.urlretrieve("https://"+ s[num1:num1+num2], SaveDirectory + "/" + str(filename) +
-                        GetFileType(s[num1:num1+num2], num2))
+                print(str(filename) + GetFileType(hrefValue), end = '')
+                urllib.request.urlretrieve("https://"+ hrefValue, SaveDirectory + "/" + str(filename) +
+                        GetFileType(hrefValue))
 
             else: # If the directory doesn't exist, create it.      
                 print("Save directory doesn't exist, creating now...")
                 os.mkdir(SaveDirectory)
-                print(str(filename) + GetFileType(s[num1:num1+num2], num2), end = '')
+                print(str(filename) + GetFileType(hrefValue), end = '')
 
-                urllib.request.urlretrieve("https://"+ s[num1:num1+num2], SaveDirectory + "/" + str(filename) +
-                        GetFileType(s[num1:num1+num2], num2))
+                urllib.request.urlretrieve("https://"+ hrefValue, SaveDirectory + "/" + str(filename) +
+                        GetFileType(hrefValue))
 
             filename = filename + 1
         except:
