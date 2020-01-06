@@ -75,7 +75,7 @@ def DownloadThreadAttachments(album, SaveDirectory):
         os.mkdir(SaveDirectory)
     
     
-
+    start_time = time.time()
     print("-------------------------------------")
 
     links = GetHrefsFromHtml(a)
@@ -90,9 +90,12 @@ def DownloadThreadAttachments(album, SaveDirectory):
     Thread1.join()
     Thread2.join()
 
+    end_time = time.time()
+    total_time = end_time-start_time
+    
     print("-------------------------------------")
     print("Download complete! Total time elapsed - " + str(round(total_time, 2)) + " seconds")
-        
+    
 
 
 
