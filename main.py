@@ -16,20 +16,13 @@ def Directory_Exists(uri):
     else:
         return False
 
-#----------------------------------------------------------------------------------------------------------------------------------	
+#-------------------------------------------------------------------------------	
 	
 	
-def FourChan_GetFileType(string, num):
-    if string[num-4:num] == ".jpg":
-        return ".jpg"
-    elif string[num-4:num] == ".png":
-        return ".png"
-    elif string[num-5:num] == ".webm":
-        return ".webm"
-    elif string[num-4:num] == ".gif":
-        return ".gif"
+def GetFileType(string, num):
+    index = string.rfind('.')
 
-
+    return string[index:]
 
 
 def DownloadThreadAttachments(album, SaveDirectory):
@@ -49,12 +42,11 @@ def DownloadThreadAttachments(album, SaveDirectory):
         start_time = time.time()
         
         try:
-            if (Directory_Exists(SaveDirectory)): # Checks if the directory we want to save our photos to exists.
+            if (Directory_Exists(SaveDirectory)): # Checks if save directory exists.
                 print(str(filename) + FourChan_GetFileType(s[num1:num1+num2], num2), end = '')
-
                 urllib.request.urlretrieve("https://"+ s[num1:num1+num2], SaveDirectory + "/" + str(filename) +
                         FourChan_GetFileType(s[num1:num1+num2], num2))
-                
+
             else: # If the directory doesn't exist, create it.      
                 print("Save directory doesn't exist, creating now...")
                 os.mkdir(SaveDirectory)
