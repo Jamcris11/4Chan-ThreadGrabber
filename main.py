@@ -43,17 +43,17 @@ def DownloadThreadAttachments(album, SaveDirectory):
         
         try:
             if (Directory_Exists(SaveDirectory)): # Checks if save directory exists.
-                print(str(filename) + FourChan_GetFileType(s[num1:num1+num2], num2), end = '')
+                print(str(filename) + GetFileType(s[num1:num1+num2], num2), end = '')
                 urllib.request.urlretrieve("https://"+ s[num1:num1+num2], SaveDirectory + "/" + str(filename) +
-                        FourChan_GetFileType(s[num1:num1+num2], num2))
+                        GetFileType(s[num1:num1+num2], num2))
 
             else: # If the directory doesn't exist, create it.      
                 print("Save directory doesn't exist, creating now...")
                 os.mkdir(SaveDirectory)
-                print(str(filename) + FourChan_GetFileType(s[num1:num1+num2], num2), end = '')
+                print(str(filename) + GetFileType(s[num1:num1+num2], num2), end = '')
 
                 urllib.request.urlretrieve("https://"+ s[num1:num1+num2], SaveDirectory + "/" + str(filename) +
-                        FourChan_GetFileType(s[num1:num1+num2], num2))
+                        GetFileType(s[num1:num1+num2], num2))
 
             filename = filename + 1
         except:
