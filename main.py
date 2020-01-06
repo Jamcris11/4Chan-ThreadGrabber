@@ -33,46 +33,45 @@ def GetHrefValue(string):
     return string[indexStart:indexStart+indexEnd]
 
 
+def DownloadContent(url, destination):
+    urllib.request.urlretrieve("https://" + url, destination)
+
 def DownloadThreadAttachments(album, SaveDirectory):
     a = album.find_all(class_="fileThumb")
     returnArray = {}
-    filename = 0
+    filename = 0 # The name given to the file. So 0.jpg, 1.gif, etc... (iterative)
     
+    total_time = 0
+
     print("Starting download")
+    
+    if (not Directory_Exists(SaveDirectory)):
+        print("Save directory doesn't exist, creating it now...")
+        os.mkdir(SaveDirectory)
 
+    print("-------------------------------------")
     for i in a:
-        
         s = str(i)
-        #num1 = s.find('href="')+8
-        #href = s[num1:]
-        #num2 = href.find('"')
-
         hrefValue = GetHrefValue(s) # Get image link to request download
 
         start_time = time.time()
         
         try:
-            if (Directory_Exists(SaveDirectory)): # Checks if save directory exists.
-                print(str(filename) + GetFileType(hrefValue), end = '')
-                urllib.request.urlretrieve("https://"+ hrefValue, SaveDirectory + "/" + str(filename) +
-                        GetFileType(hrefValue))
+            print(str(filename) + GetFileType(hrefValue), end = '')
+            DownloadContent(hrefValue, SaveDirectory + "/" + str(filename) + GetFileType(hrefValue))
 
-            else: # If the directory doesn't exist, create it.      
-                print("Save directory doesn't exist, creating now...")
-                os.mkdir(SaveDirectory)
-                print(str(filename) + GetFileType(hrefValue), end = '')
-
-                urllib.request.urlretrieve("https://"+ hrefValue, SaveDirectory + "/" + str(filename) +
-                        GetFileType(hrefValue))
-
-            filename = filename + 1
         except:
             print("\t\t failed")
-            filename = filename + 1
+            filename += 1
             continue
         
         end_time = time.time() - start_time
+        total_time += end_time
+        filename += 1
         print("\t\t" + str(round(end_time, 2)), " seconds")
+
+    print("-------------------------------------")
+    print("Download complete! Total time elapsed - " + str(round(total_time, 2)) + " seconds")
         
 
 def AddArguments(parser):
