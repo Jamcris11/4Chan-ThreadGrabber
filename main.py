@@ -39,12 +39,11 @@ def DownloadContent(url, destination):
 
 
 
-def DownloadListOfLinks(links, directory, filename):
+def DownloadListOfLinks(links, directory):
     for i in links:
         s = str(i)
-        print(str(filename) + GetFileType(s))
-        DownloadContent(s, directory + '/' + str(filename) + GetFileType(s))
-        filename += 1
+        print(s)
+        DownloadContent(s, directory + '/' + s[s.rfind("/")+1:])
 
 
 
@@ -58,6 +57,11 @@ def GetHrefsFromHtml(array):
         returnValues.append(hrefValue)
 
     return returnValues
+
+
+def SplitArray(a):
+    midpoint = len(a)//2
+    return a[:midpoint], a[midpoint:]
 
 
 
@@ -81,14 +85,24 @@ def DownloadThreadAttachments(album, SaveDirectory):
     links = GetHrefsFromHtml(a)
     length = len(links)
 
-    Thread1 = threading.Thread(target=DownloadListOfLinks, args = (links[:length//2], SaveDirectory, 0))
-    Thread2 = threading.Thread(target=DownloadListOfLinks, args = (links[length//2:], SaveDirectory, length//2))
+    t1a, t3a = SplitArray(links)
+    t1a, t2a = SplitArray(t1a)
+    t3a, t4a = SplitArray(t3a)
+
+    Thread1 = threading.Thread(target=DownloadListOfLinks, args = (t1a, SaveDirectory))
+    Thread2 = threading.Thread(target=DownloadListOfLinks, args = (t2a, SaveDirectory))
+    Thread3 = threading.Thread(target=DownloadListOfLinks, args = (t3a, SaveDirectory))
+    Thread4 = threading.Thread(target=DownloadListOfLinks, args = (t4a, SaveDirectory))
 
     Thread1.start()
     Thread2.start()
+    Thread3.start()
+    Thread4.start()
     
     Thread1.join()
     Thread2.join()
+    Thread3.join()
+    Thread4.join()
 
     end_time = time.time()
     total_time = end_time-start_time
