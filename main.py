@@ -8,6 +8,7 @@ import time
 import cmd
 import sys
 import argparse
+import threading
 from bs4 import BeautifulSoup
 
 def Directory_Exists(uri):
@@ -36,9 +37,33 @@ def GetHrefValue(string):
 def DownloadContent(url, destination):
     urllib.request.urlretrieve("https://" + url, destination)
 
+
+
+def DownloadListOfLinks(links, directory, filename):
+    for i in links:
+        s = str(i)
+        print(str(filename) + GetFileType(s))
+        DownloadContent(s, directory + '/' + str(filename) + GetFileType(s))
+        filename += 1
+
+
+
+
+def GetHrefsFromHtml(array):
+    returnValues = []
+
+    for i in array:
+        s = str(i)
+        hrefValue = GetHrefValue(s)
+        returnValues.append(hrefValue)
+
+    return returnValues
+
+
+
+
 def DownloadThreadAttachments(album, SaveDirectory):
     a = album.find_all(class_="fileThumb")
-    returnArray = {}
     filename = 0 # The name given to the file. So 0.jpg, 1.gif, etc... (iterative)
     
     total_time = 0
@@ -48,31 +73,29 @@ def DownloadThreadAttachments(album, SaveDirectory):
     if (not Directory_Exists(SaveDirectory)):
         print("Save directory doesn't exist, creating it now...")
         os.mkdir(SaveDirectory)
+    
+    
 
     print("-------------------------------------")
-    for i in a:
-        s = str(i)
-        hrefValue = GetHrefValue(s) # Get image link to request download
 
-        start_time = time.time()
-        
-        try:
-            print(str(filename) + GetFileType(hrefValue), end = '')
-            DownloadContent(hrefValue, SaveDirectory + "/" + str(filename) + GetFileType(hrefValue))
+    links = GetHrefsFromHtml(a)
+    length = len(links)
 
-        except:
-            print("\t\t failed")
-            filename += 1
-            continue
-        
-        end_time = time.time() - start_time
-        total_time += end_time
-        filename += 1
-        print("\t\t" + str(round(end_time, 2)), " seconds")
+    Thread1 = threading.Thread(target=DownloadListOfLinks, args = (links[:length//2], SaveDirectory, 0))
+    Thread2 = threading.Thread(target=DownloadListOfLinks, args = (links[length//2:], SaveDirectory, length//2))
+
+    Thread1.start()
+    Thread2.start()
+    
+    Thread1.join()
+    Thread2.join()
 
     print("-------------------------------------")
     print("Download complete! Total time elapsed - " + str(round(total_time, 2)) + " seconds")
         
+
+
+
 
 def AddArguments(parser):
     parser.add_argument('-d', metavar='DIR', type=str, nargs=1,
