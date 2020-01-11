@@ -79,8 +79,9 @@ def DownloadThreadAttachments(album, SaveDirectory):
         os.mkdir(SaveDirectory)
     
     
-    start_time = time.time()
+    
     print("-------------------------------------")
+    start_time = time.time()
 
     links = GetHrefsFromHtml(a)
     length = len(links)
