@@ -26,12 +26,16 @@ def GetFileType(string):
     return string[index:]
 
 
+
+
 def GetHrefValue(string):
     indexStart = string.find('href="')+8
     hrefStartString = string[indexStart:]
     indexEnd = hrefStartString.find('"')
 
     return string[indexStart:indexStart+indexEnd]
+
+
 
 
 def DownloadContent(url, destination):
@@ -59,6 +63,8 @@ def GetHrefsFromHtml(array):
     return returnValues
 
 
+
+
 def SplitArray(a):
     midpoint = len(a)//2
     return a[:midpoint], a[midpoint:]
@@ -66,8 +72,8 @@ def SplitArray(a):
 
 
 
-def DownloadThreadAttachments(album, SaveDirectory):
-    a = album.find_all(class_="fileThumb")
+def DownloadThreadAttachments(Html, SaveDirectory):
+    a = Html.find_all(class_="fileThumb")
     filename = 0 # The name given to the file. So 0.jpg, 1.gif, etc... (iterative)
     
     total_time = 0
@@ -124,6 +130,7 @@ def AddArguments(parser):
 
 
 
+
 def HandleArgs():
     parser = argparse.ArgumentParser(
             description="4Chan thread image downloader.")
@@ -135,6 +142,14 @@ def HandleArgs():
     return args
 
 
+
+
+def ListToString(v):
+    return ''.join(v)
+
+
+
+
 def FourChan_Start():
     args = HandleArgs()
 
@@ -144,8 +159,7 @@ def FourChan_Start():
 
         DownloadThreadAttachments(Html, ListToString(args['d']))
 
-def ListToString(v):
-    return ''.join(v)
+
 
 FourChan_Start()    
 
