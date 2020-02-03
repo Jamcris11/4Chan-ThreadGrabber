@@ -8,7 +8,7 @@ import time
 import cmd
 import sys
 import argparse
-import threading
+from multiprocessing import Process
 from bs4 import BeautifulSoup
 
 def Directory_Exists(uri):
@@ -92,24 +92,16 @@ def DownloadThreadAttachments(Html, SaveDirectory):
     links = GetHrefsFromHtml(a)
     length = len(links)
 
-    t1a, t3a = SplitArray(links)
-    t1a, t2a = SplitArray(t1a)
-    t3a, t4a = SplitArray(t3a)
+    p1a, p2a = SplitArray(links)
 
-    Thread1 = threading.Thread(target=DownloadListOfLinks, args = (t1a, SaveDirectory))
-    Thread2 = threading.Thread(target=DownloadListOfLinks, args = (t2a, SaveDirectory))
-    Thread3 = threading.Thread(target=DownloadListOfLinks, args = (t3a, SaveDirectory))
-    Thread4 = threading.Thread(target=DownloadListOfLinks, args = (t4a, SaveDirectory))
+    Process1 = Process(target=DownloadListOfLinks, args = (p1a, SaveDirectory))
+    Process2 = Process(target=DownloadListOfLinks, args = (p2a, SaveDirectory))
 
-    Thread1.start()
-    Thread2.start()
-    Thread3.start()
-    Thread4.start()
+    Process1.start()
+    Process2.start()
     
-    Thread1.join()
-    Thread2.join()
-    Thread3.join()
-    Thread4.join()
+    Process1.join()
+    Process2.join()
 
     end_time = time.time()
     total_time = end_time-start_time
