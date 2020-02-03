@@ -11,12 +11,6 @@ import argparse
 from multiprocessing import Process
 from bs4 import BeautifulSoup
 
-def Directory_Exists(uri):
-    if os.path.exists(uri) == True:
-        return True
-    else:
-        return False
-
 #-------------------------------------------------------------------------------	
 	
 	
@@ -80,7 +74,7 @@ def DownloadThreadAttachments(Html, SaveDirectory):
 
     print("Starting download")
     
-    if (not Directory_Exists(SaveDirectory)):
+    if (not os.path.exists(SaveDirectory)):
         print("Save directory doesn't exist, creating it now...")
         os.mkdir(SaveDirectory)
     
