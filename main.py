@@ -8,18 +8,11 @@ import time
 import cmd
 import sys
 import argparse
-import threading
+from multiprocessing import Process
 from bs4 import BeautifulSoup
 
-def Directory_Exists(uri):
-    if os.path.exists(uri) == True:
-        return True
-    else:
-        return False
-
 #-------------------------------------------------------------------------------	
-	
-	
+		
 def GetFileType(string):
     index = string.rfind('.')
 
@@ -27,7 +20,7 @@ def GetFileType(string):
 
 
 
-
+# Gets the url of the file
 def GetHrefValue(string):
     indexStart = string.find('href="')+8
     hrefStartString = string[indexStart:]
@@ -37,12 +30,13 @@ def GetHrefValue(string):
 
 
 
-
+# Downloads a file from a url and places it at "destination"
 def DownloadContent(url, destination):
     urllib.request.urlretrieve("https://" + url, destination)
 
 
 
+# Takes a list of links, downloads them
 def DownloadListOfLinks(links, directory):
     for i in links:
         s = str(i)
@@ -51,28 +45,27 @@ def DownloadListOfLinks(links, directory):
 
 
 
-
-def GetHrefsFromHtml(array):
+# Grabs the threads image/video urls
+def GetFileUrls(array):
     returnValues = []
 
     for i in array:
-        s = str(i)
-        hrefValue = GetHrefValue(s)
+        hrefValue = GetHrefValue(str(i))
         returnValues.append(hrefValue)
 
     return returnValues
 
 
 
-
+# Splits the array into two so that both threads can handle a portion
 def SplitArray(a):
     midpoint = len(a)//2
     return a[:midpoint], a[midpoint:]
 
 
 
-
-def DownloadThreadAttachments(Html, SaveDirectory):
+# Takes the threads HTML and downloads all the images/videos
+def DownloadThreadFiles(Html, SaveDirectory):
     a = Html.find_all(class_="fileThumb")
     filename = 0 # The name given to the file. So 0.jpg, 1.gif, etc... (iterative)
     
@@ -80,7 +73,7 @@ def DownloadThreadAttachments(Html, SaveDirectory):
 
     print("Starting download")
     
-    if (not Directory_Exists(SaveDirectory)):
+    if (not os.path.exists(SaveDirectory)):
         print("Save directory doesn't exist, creating it now...")
         os.mkdir(SaveDirectory)
     
@@ -89,27 +82,19 @@ def DownloadThreadAttachments(Html, SaveDirectory):
     print("-------------------------------------")
     start_time = time.time()
 
-    links = GetHrefsFromHtml(a)
+    links = GetFileUrls(a)
     length = len(links)
 
-    t1a, t3a = SplitArray(links)
-    t1a, t2a = SplitArray(t1a)
-    t3a, t4a = SplitArray(t3a)
+    p1a, p2a = SplitArray(links)
 
-    Thread1 = threading.Thread(target=DownloadListOfLinks, args = (t1a, SaveDirectory))
-    Thread2 = threading.Thread(target=DownloadListOfLinks, args = (t2a, SaveDirectory))
-    Thread3 = threading.Thread(target=DownloadListOfLinks, args = (t3a, SaveDirectory))
-    Thread4 = threading.Thread(target=DownloadListOfLinks, args = (t4a, SaveDirectory))
+    Process1 = Process(target=DownloadListOfLinks, args = (p1a, SaveDirectory))
+    Process2 = Process(target=DownloadListOfLinks, args = (p2a, SaveDirectory))
 
-    Thread1.start()
-    Thread2.start()
-    Thread3.start()
-    Thread4.start()
+    Process1.start()
+    Process2.start()
     
-    Thread1.join()
-    Thread2.join()
-    Thread3.join()
-    Thread4.join()
+    Process1.join()
+    Process2.join()
 
     end_time = time.time()
     total_time = end_time-start_time
@@ -120,8 +105,8 @@ def DownloadThreadAttachments(Html, SaveDirectory):
 
 
 
-
-def AddArguments(parser):
+# Initialises the arguments for the program
+def InitArgs(parser):
     parser.add_argument('-d', metavar='DIR', type=str, nargs=1,
             help='sets the directory for image storage.')
 
@@ -130,12 +115,12 @@ def AddArguments(parser):
 
 
 
-
-def HandleArgs():
+# Gets the arguments provider by the user
+def GetArgs():
     parser = argparse.ArgumentParser(
             description="4Chan thread image downloader.")
     
-    AddArguments(parser)
+    InitArgs(parser)
     args = parser.parse_args()
     args = vars(args)
 
@@ -149,15 +134,15 @@ def ListToString(v):
 
 
 
-
+# Entry point
 def FourChan_Start():
-    args = HandleArgs()
+    args = GetArgs()
 
     if (ListToString(args['t']) != ''):
         Url = requests.get(ListToString(args['t']), auth=('user', 'pass'))
         Html = BeautifulSoup(Url.text, 'html.parser')
 
-        DownloadThreadAttachments(Html, ListToString(args['d']))
+        DownloadThreadFiles(Html, ListToString(args['d']))
 
 
 
