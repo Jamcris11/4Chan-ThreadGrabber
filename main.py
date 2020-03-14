@@ -144,9 +144,8 @@ def FourChan_Start():
 
         DownloadThreadFiles(Html, ListToString(args['d']))
 
-
-
-FourChan_Start()    
+if __name__ == '__main__':
+    FourChan_Start()    
 
 
 
