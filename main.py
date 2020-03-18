@@ -138,7 +138,7 @@ def ListToString(v):
 def FourChan_Start():
     args = GetArgs()
 
-    if (ListToString(args['t']) != ''):
+    if (ListToString(args['t']) != '' and ListToString(args['d']) != ''):
         Url = requests.get(ListToString(args['t']), auth=('user', 'pass'))
         Html = BeautifulSoup(Url.text, 'html.parser')
 
