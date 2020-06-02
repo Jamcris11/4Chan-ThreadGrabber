@@ -122,7 +122,7 @@ def GetArgs():
     args = parser.parse_args()
     args = vars(args)
 
-    return args
+    return parser, args
 
 
 
@@ -134,13 +134,17 @@ def ListToString(v):
 
 # Entry point
 def FourChan_Start():
-    args = GetArgs()
+    parser, args = GetArgs()
 
     if (ListToString(args['t']) != '' and ListToString(args['d']) != ''):
         Url = requests.get(ListToString(args['t']), auth=('user', 'pass'))
         Html = BeautifulSoup(Url.text, 'html.parser')
 
         DownloadThreadFiles(Html, ListToString(args['d']))
+    else:
+        parser.print_help()
+        
+        
 
 if __name__ == '__main__':
     FourChan_Start()    
