@@ -128,6 +128,8 @@ def GetArgs():
 
 
 def ListToString(v):
+    if v == None:
+        return ''
     return ''.join(v)
 
 
