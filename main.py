@@ -35,10 +35,12 @@ def DownloadContent(url, destination):
 
 
 # Takes a list of links, downloads them
-def DownloadListOfLinks(links, directory):
+def DownloadListOfLinks(links, directory, printFilename = true):
     for i in links:
         s = str(i)
-        print(s)
+        if printFilename == true:
+            print(s)
+        
         DownloadContent(s, directory + '/' + s[s.rfind("/")+1:])
 
 
