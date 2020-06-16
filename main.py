@@ -6,7 +6,7 @@ import time
 import cmd
 import sys
 import argparse
-from multiprocessing import Process
+import threading
 from bs4 import BeautifulSoup
 
 #-------------------------------------------------------------------------------	
@@ -83,16 +83,16 @@ def DownloadThreadFiles(Html, SaveDirectory):
     links = GetFileUrls(a)
     length = len(links)
 
-    p1a, p2a = SplitArray(links)
+    thread_1_array, thread_2_array = SplitArray(links)
 
-    Process1 = Process(target=DownloadListOfLinks, args = (p1a, SaveDirectory))
-    Process2 = Process(target=DownloadListOfLinks, args = (p2a, SaveDirectory))
+    thread_1 = threading.Thread(target=DownloadListOfLinks, args = (thread_1_array, SaveDirectory))
+    thread_2 = threading.Thread(target=DownloadListOfLinks, args = (thread_2_array, SaveDirectory))
 
-    Process1.start()
-    Process2.start()
+    thread_1.start()
+    thread_2.start()
     
-    Process1.join()
-    Process2.join()
+    thread_1.join()
+    thread_2.join()
 
     end_time = time.time()
     total_time = end_time-start_time
