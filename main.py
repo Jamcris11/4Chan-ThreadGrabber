@@ -5,154 +5,80 @@ import re
 import time
 import cmd
 import sys
-import argparse
 import threading
 from bs4 import BeautifulSoup
 
-#-------------------------------------------------------------------------------	
-		
-def GetFileType(string):
-    index = string.rfind('.')
+import args as ARG
+import html_parsing as HTML
+import util as UTIL
 
-    return string[index:]
+#-------------------------------------------------------------------------------
 
-
-
-# Gets the url of the file
-def GetHrefValue(string):
-    indexStart = string.find('href="')+8
-    hrefStartString = string[indexStart:]
-    indexEnd = hrefStartString.find('"')
-
-    return string[indexStart:indexStart+indexEnd]
+def download_file(url, dest):
+    urllib.request.urlretrieve("https://" + url, dest)
+    print(url + " -- DONE")
 
 
-
-# Downloads a file from a url and places it at "destination"
-def DownloadContent(url, destination):
-    urllib.request.urlretrieve("https://" + url, destination)
-
+def download_files(urls, dir):
+    for url in urls:
+        download_file(str(url), dir + '/' + UTIL.file_name_from_url(url))
 
 
-# Takes a list of links, downloads them
-def DownloadListOfLinks(links, directory, printFilename = True):
-    for i in links:
-        s = str(i)
-        if printFilename == True:
-            print(s)
-        
-        DownloadContent(s, directory + '/' + s[s.rfind("/")+1:])
+def download_files_multithreaded(urls, dir):
+    t1_urls, t2_urls = UTIL.split_array(urls)
+
+    t1 = threading.Thread(target=download_files, args = (t1_urls, dir))
+    t2 = threading.Thread(target=download_files, args = (t2_urls, dir))
+
+    t1.start()
+    t2.start()
+
+    t1.join()
+    t2.join()
 
 
-
-# Grabs the threads image/video urls
-def GetFileUrls(array):
-    returnValues = []
-
-    for i in array:
-        hrefValue = GetHrefValue(str(i))
-        returnValues.append(hrefValue)
-
-    return returnValues
+def four_chan_get_urls(html_parser):
+    return HTML.parse_urls(html_parser.find_all(class_="fileThumb"))
 
 
-
-# Splits the array into two so that both threads can handle a portion
-def SplitArray(a):
-    midpoint = len(a)//2
-    return a[:midpoint], a[midpoint:]
-
+def start_thread_download(url, dir, single_threaded=False):
+    req = requests.get(url, auth=('user', 'pass'))
+    html_parser = BeautifulSoup(req.text, 'html.parser')
+    thread_file_urls = four_chan_get_urls(html_parser)
 
 
-# Takes the threads HTML and downloads all the images/videos
-def DownloadThreadFiles(Html, SaveDirectory):
-    a = Html.find_all(class_="fileThumb")
-    filename = 0 # The name given to the file. So 0.jpg, 1.gif, etc... (iterative)
-    
-    total_time = 0
+    if (not os.path.exists(dir)):
+        print("Output directory doesn't exist, creating it now...")
+        os.mkdir(dir)
 
-    print("Starting download")
-    
-    if (not os.path.exists(SaveDirectory)):
-        print("Save directory doesn't exist, creating it now...")
-        os.mkdir(SaveDirectory)
-    
-    
-    
-    print("-------------------------------------")
+
     start_time = time.time()
 
-    links = GetFileUrls(a)
-    length = len(links)
-
-    thread_1_array, thread_2_array = SplitArray(links)
-
-    thread_1 = threading.Thread(target=DownloadListOfLinks, args = (thread_1_array, SaveDirectory))
-    thread_2 = threading.Thread(target=DownloadListOfLinks, args = (thread_2_array, SaveDirectory))
-
-    thread_1.start()
-    thread_2.start()
-    
-    thread_1.join()
-    thread_2.join()
+    if (single_threaded is True):
+        download_files(thread_file_urls, dir)
+    else:
+        download_files_multithreaded(thread_file_urls, dir)
 
     end_time = time.time()
     total_time = end_time-start_time
-    
-    print("-------------------------------------")
-    print("Download complete! Total time elapsed - " + str(round(total_time, 2)) + " seconds")
-    
 
-
-
-# Initialises the arguments for the program
-def InitArgs(parser):
-    parser.add_argument('-d', metavar='DIR', type=str, nargs=1,
-            help='sets the directory for image storage.')
-
-    parser.add_argument('-t', metavar='URL', type=str, nargs=1,
-            help='downloads images from URL thread.')
-
-
-
-# Gets the arguments provider by the user
-def GetArgs():
-    parser = argparse.ArgumentParser(
-            description="4Chan thread image downloader.")
-    
-    InitArgs(parser)
-    args = parser.parse_args()
-    args = vars(args)
-
-    return parser, args
-
-
-
-
-def ListToString(v):
-    if v == None:
-        return ''
-    return ''.join(v)
-
+    return round(total_time, 2)
 
 
 # Entry point
-def FourChan_Start():
-    parser, args = GetArgs()
+def start():
+    parser, args = ARG.get_args()
 
-    if (ListToString(args['t']) != '' and ListToString(args['d']) != ''):
-        Url = requests.get(ListToString(args['t']), auth=('user', 'pass'))
-        Html = BeautifulSoup(Url.text, 'html.parser')
-
-        DownloadThreadFiles(Html, ListToString(args['d']))
-    else:
+    if (args.thread is None or args.dir is None):
         parser.print_help()
-        
-        
+        exit()
+
+    print("Starting download...")
+    print("-------------------------------------")
+    time_elapsed = start_thread_download(args.thread[0], args.dir[0], bool(args.single_threaded))
+    print("-------------------------------------")
+    print("Download complete! Total time elapsed - " + str(time_elapsed) + " seconds")
+
 
 if __name__ == '__main__':
-    FourChan_Start()    
-
-
-
-
+    start()
