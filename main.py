@@ -1,9 +1,5 @@
-import requests
 import os
-import urllib.request
-import re
 import time
-import cmd
 import sys
 import threading
 from bs4 import BeautifulSoup
@@ -15,11 +11,12 @@ import download as DL
 
 #-------------------------------------------------------------------------------
 
-def start_thread_download(url, dir, single_threaded=False):
-    req = requests.get(url, auth=('user', 'pass'))
-    html_parser = BeautifulSoup(req.text, 'html.parser')
-    thread_file_urls = UTIL.four_chan_get_urls(html_parser)
+def get_download_urls(html_parser):
+    return UTIL.four_chan_get_urls(html_parser)
 
+
+def start_download(url, dir, single_threaded=False):
+    urls = get_download_urls(HTML.get_html(url))
 
     if (not os.path.exists(dir)):
         print("Output directory doesn't exist, creating it now...")
@@ -29,9 +26,9 @@ def start_thread_download(url, dir, single_threaded=False):
     start_time = time.time()
 
     if (single_threaded is True):
-        DL.download_files(thread_file_urls, dir)
+        DL.download_files(urls, dir)
     else:
-        DL.download_files_multithreaded(thread_file_urls, dir)
+        DL.download_files_multithreaded(urls, dir)
 
     end_time = time.time()
     total_time = end_time-start_time
@@ -49,7 +46,7 @@ def start():
 
     print("Starting download...")
     print("-------------------------------------")
-    time_elapsed = start_thread_download(args.thread[0], args.dir[0], bool(args.single_threaded))
+    time_elapsed = start_download(args.thread[0], args.dir[0], bool(args.single_threaded))
     print("-------------------------------------")
     print("Download complete! Total time elapsed - " + str(time_elapsed) + " seconds")
 

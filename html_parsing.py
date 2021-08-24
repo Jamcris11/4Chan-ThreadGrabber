@@ -1,3 +1,9 @@
+import requests
+from bs4 import BeautifulSoup
+
+def get_html(url):
+    req = requests.get(url, auth=('user', 'pass'))
+    return BeautifulSoup(req.text, 'html.parser')
 
 # Gets the url of the file
 def parse_href(string):
