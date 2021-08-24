@@ -9,9 +9,9 @@ def list_2_obj(list):
 
 
 def init_args(parser):
-	parser.add_argument('-d', '--dir', metavar='DIR', type=str, nargs=1, help='sets the directory for image storage.')
-	parser.add_argument('-t', '--thread', metavar='URL', type=str, nargs=1, help='downloads images from thread URL.')
-	parser.add_argument('--single-threaded', action="store_true", help='forces the program to run in a single thread.')
+	parser.add_argument('-d', '--dir', metavar='DIR', type=str, nargs=1, help='sets the directory for image storage')
+	parser.add_argument('-t', '--thread', metavar='URL', type=str, nargs=1, help='downloads images from thread URL')
+	parser.add_argument('--single-threaded', action="store_true", help='forces the program to run in a single thread')
 
 
 def get_args():
