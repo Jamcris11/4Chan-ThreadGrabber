@@ -55,9 +55,9 @@ def start_thread_download(url, dir, single_threaded=False):
     start_time = time.time()
 
     if (single_threaded is True):
-        download_files(thread_file_urls, dir)
+        DL.download_files(thread_file_urls, dir)
     else:
-        download_files_multithreaded(thread_file_urls, dir)
+        DL.download_files_multithreaded(thread_file_urls, dir)
 
     end_time = time.time()
     total_time = end_time-start_time
