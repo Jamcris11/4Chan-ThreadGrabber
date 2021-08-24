@@ -36,7 +36,6 @@ def start_download(url, dir, single_threaded=False):
     return round(total_time, 2)
 
 
-# Entry point
 def start():
     parser, args = ARG.get_args()
 
