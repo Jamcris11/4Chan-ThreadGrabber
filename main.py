@@ -16,7 +16,7 @@ import util as UTIL
 
 def download_file(url, dest):
     urllib.request.urlretrieve("https://" + url, dest)
-    print(url + " -- DONE")
+    print(url + "\t-- DONE")
 
 
 def download_files(urls, dir):
