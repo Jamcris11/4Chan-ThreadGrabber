@@ -39,13 +39,9 @@ def start_download(url, dir, single_threaded=False):
 def start():
     parser, args = ARG.get_args()
 
-    if (args.thread is None or args.dir is None):
-        parser.print_help()
-        exit()
-
     print("Starting download...")
     print("-------------------------------------")
-    time_elapsed = start_download(args.thread[0], args.dir[0], bool(args.single_threaded))
+    time_elapsed = start_download(args.thread, ''.join(args.dir), bool(args.single_threaded))
     print("-------------------------------------")
     print("Download complete! Total time elapsed - " + str(time_elapsed) + " seconds")
 
